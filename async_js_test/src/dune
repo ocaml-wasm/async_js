@@ -1,4 +1,5 @@
 (library (name async_js_test) (public_name async_js.async_test)
  (libraries js_of_ocaml async_kernel async_js)
  (foreign_stubs (language c) (names c_stubs))
- (js_of_ocaml (javascript_files ./runtime.js)) (preprocess (pps ppx_jane)))
+ (js_of_ocaml (javascript_files ./runtime.js) (wasm_files ./runtime.wat))
+ (preprocess (pps ppx_jane)))

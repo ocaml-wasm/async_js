@@ -145,10 +145,6 @@ let init () = force initialization
 let initialized () = !initialized_ref
 
 let document_loaded =
-  let js_string_compare s =
-    let compare_using_javascript_triple_equal_for_strings = phys_equal in
-    compare_using_javascript_triple_equal_for_strings (Js.string s)
-  in
   let ready_state_change = "readystatechange" in
   let complete = "complete" in
   let readystatechange_ev = Dom.Event.make ready_state_change in
@@ -157,13 +153,13 @@ let document_loaded =
       (Dom_html.addEventListener target evt handler Js._false : Dom.event_listener_id)
   in
   fun () ->
-    if js_string_compare complete Dom_html.document##.readyState
+    if Js.equals (Js.string complete) Dom_html.document##.readyState
     then Async_kernel.Deferred.unit
     else (
       let loaded = Async_kernel.Ivar.create () in
       let handler evt =
-        if (not (js_string_compare ready_state_change evt##._type))
-           || js_string_compare complete Dom_html.document##.readyState
+        if (not (Js.equals (Js.string ready_state_change) evt##._type))
+           || Js.equals (Js.string complete) Dom_html.document##.readyState
         then Async_kernel.Ivar.fill_if_empty loaded ();
         Js._true
       in

@@ -1,10 +1,14 @@
 (module
    (import "env" "wrap" (func $wrap (param anyref) (result (ref eq))))
+(;
    (import "env" "caml_js_expr"
       (func $caml_js_expr (param (ref eq)) (result (ref eq))))
+;)
    (import "env" "caml_js_meth_call"
       (func $caml_js_meth_call
          (param (ref eq)) (param (ref eq)) (param (ref eq)) (result (ref eq))))
+
+   (func $caml_js_expr (param (ref eq)) (result (ref eq)) (unreachable))
 
    (global $deasync (mut eqref) (ref.null eq))
 

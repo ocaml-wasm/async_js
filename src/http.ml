@@ -46,13 +46,13 @@ type 'k with_request_args =
 let has_get_args url = Option.is_some (String.index url '?')
 
 let request
-  ?(headers = [])
-  ?on_progress
-  ?on_upload_progress
-  ~url
-  (type resp)
-  ~(response_type : resp Response_type.t)
-  (method_with_args : Method_with_args.t)
+      ?(headers = [])
+      ?on_progress
+      ?on_upload_progress
+      ~url
+      (type resp)
+      ~(response_type : resp Response_type.t)
+      (method_with_args : Method_with_args.t)
   =
   let url, method_string =
     match method_with_args with
@@ -93,18 +93,18 @@ let request
                  Opt.case
                    req##.responseText
                    (fun () ->
-                     (* This case should not be entered as per the specification of
+                      (* This case should not be entered as per the specification of
                       XMLHttpRequest at MDN web docs, because if a request is successful,
                       in state [DONE] and response_type [Text] or [Default],
                       [responseText] should not be [null].
                       See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseText
-                     *)
-                     error_s
-                       [%sexp
-                         "No response returned despite successful request"
-                         , { code = (req##.status : int)
-                           ; status_text = (Js.to_string req##.statusText : string)
-                           }])
+                      *)
+                      error_s
+                        [%sexp
+                          "No response returned despite successful request"
+                        , { code = (req##.status : int)
+                          ; status_text = (Js.to_string req##.statusText : string)
+                          }])
                    Result.return
                in
                let open Response_type in
@@ -127,9 +127,9 @@ let request
              Or_error.error_s
                [%sexp
                  "Request failed"
-                 , { code = (req##.status : int)
-                   ; status_text = (Js.to_string req##.statusText : string)
-                   }]
+               , { code = (req##.status : int)
+                 ; status_text = (Js.to_string req##.statusText : string)
+                 }]
          in
          Ivar.fill_if_empty response res
        | _ -> ());
@@ -138,12 +138,11 @@ let request
     := Dom.handler (fun e ->
          on_progress ~loaded:e##.loaded ~total:e##.total;
          Js._true));
-  Optdef.iter req##.upload (fun upload ->
-    Option.iter on_upload_progress ~f:(fun on_upload_progress ->
-      upload##.onprogress
-      := Dom.handler (fun e ->
-           on_upload_progress ~loaded:e##.loaded ~total:e##.total;
-           Js._true)));
+  Option.iter on_upload_progress ~f:(fun on_upload_progress ->
+    req##.upload##.onprogress
+    := Dom.handler (fun e ->
+      on_upload_progress ~loaded:e##.loaded ~total:e##.total;
+      Js._true));
   (match method_with_args with
    | Get _ -> req##send Js.null
    | Post body ->
